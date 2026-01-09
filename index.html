@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="수유량 계산기">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  
+  <title>신생아 수유량 계산기</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { 
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --primary: #0066FF;
+      --primary-dark: #0052CC;
+      --primary-light: #E6F0FF;
+      --secondary: #00C2A8;
+      --bg-main: #F8FAFB;
+      --bg-card: #FFFFFF;
+      --text-primary: #0D1F2D;
+      --text-secondary: #546E7A;
+      --border: #E1E8ED;
+      --shadow-sm: 0 2px 8px rgba(13, 31, 45, 0.04);
+      --shadow-md: 0 8px 24px rgba(13, 31, 45, 0.08);
+      --shadow-lg: 0 16px 48px rgba(13, 31, 45, 0.12);
+      --night: #F0F4FF;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', 'Archivo', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      background: var(--bg-main);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 0;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 24px 20px;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+      animation: slideDown 0.7s ease-out;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .header-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      border-radius: 20px;
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      box-shadow: var(--shadow-md);
+      animation: bounce 1s ease-out;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: 28px 24px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+      animation: slideUp 0.6s ease-out;
+      animation-fill-mode: backwards;
+    }
+
+    .card:nth-child(2) { animation-delay: 0.1s; }
+    .card:nth-child(3) { animation-delay: 0.2s; }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary-light);
+    }
+
+    .input-group {
+      margin-bottom: 24px;
+    }
+
+    .input-group:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+      letter-spacing: -0.2px;
+    }
+
+    .label-badge {
+      display: inline-block;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin-left: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 16px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: var(--bg-main);
+      color: var(--text-primary);
+      font-family: 'Archivo', -apple-system, sans-serif;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      -webkit-appearance: none;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: var(--bg-card);
+      box-shadow: 0 0 0 4px var(--primary-light);
+    }
+
+    input::placeholder {
+      color: #B0BEC5;
+      font-weight: 400;
+    }
+
+    .radio-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 0;
+    }
+
+    .radio-option {
+      position: relative;
+    }
+
+    .radio-option input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .radio-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 20px;
+      background: var(--bg-main);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .radio-option input:checked + .radio-label {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+    }
+
+    .radio-label:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .radio-icon {
+      font-size: 18px;
+    }
+
+    .time-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    select:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: #F5F7FA;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      font-size: 17px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 24px rgba(0, 102, 255, 0.25);
+      letter-spacing: -0.3px;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0, 102, 255, 0.35);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 16px rgba(0, 102, 255, 0.3);
+    }
+
+    .result {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: 0;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      animation: scaleIn 0.4s ease-out;
+    }
+
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .result-header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      padding: 24px;
+      color: white;
+    }
+
+    .result-title {
+      font-size: 16px;
+      font-weight: 600;
+      opacity: 0.9;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .result-value {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      font-family: 'Archivo', sans-serif;
+    }
+
+    .result-subvalue {
+      font-size: 18px;
+      opacity: 0.85;
+      font-weight: 500;
+    }
+
+    .feed-list {
+      padding: 20px 24px;
+    }
+
+    .feed-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+      animation: fadeInRow 0.4s ease-out backwards;
+    }
+
+    .feed-row:nth-child(1) { animation-delay: 0.05s; }
+    .feed-row:nth-child(2) { animation-delay: 0.1s; }
+    .feed-row:nth-child(3) { animation-delay: 0.15s; }
+    .feed-row:nth-child(4) { animation-delay: 0.2s; }
+    .feed-row:nth-child(5) { animation-delay: 0.25s; }
+    .feed-row:nth-child(6) { animation-delay: 0.3s; }
+    .feed-row:nth-child(7) { animation-delay: 0.35s; }
+    .feed-row:nth-child(8) { animation-delay: 0.4s; }
+
+    @keyframes fadeInRow {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .feed-row:last-child { 
+      border-bottom: none; 
+    }
+
+    .feed-time {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-family: 'Archivo', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .feed-icon {
+      font-size: 20px;
+    }
+
+    .feed-volume {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+      font-family: 'Archivo', sans-serif;
+    }
+
+    .night {
+      background: var(--night);
+      margin: 0 -24px;
+      padding: 16px 24px;
+      border-left: 4px solid var(--primary);
+    }
+
+    .night .feed-time {
+      color: var(--primary);
+    }
+
+    .night .feed-icon {
+      opacity: 0.8;
+    }
+
+    footer {
+      text-align: center;
+      padding: 32px 20px;
+    }
+
+    footer a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 12px 24px;
+      background: var(--primary-light);
+      color: var(--primary);
+      text-decoration: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+    }
+
+    footer a:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+    }
+
+    @media (max-width: 400px) {
+      .container {
+        padding: 20px 16px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .card {
+        padding: 24px 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-icon">🍼</div>
+    <h1>신생아 수유량 계산기</h1>
+  </header>
+
+  <div class="card">
+    <div class="input-group">
+      <label>
+        체중 (kg)
+        <span class="label-badge">필수</span>
+      </label>
+      <input type="number" id="weight" min="0" step="0.01" inputmode="decimal" placeholder="예: 2.34">
+    </div>
+
+    <div class="input-group">
+      <label>
+        체중당 수유량 (mL/kg/day)
+        <span class="label-badge">필수</span>
+      </label>
+      <input type="number" id="mlPerKg" min="0" step="1" inputmode="numeric" placeholder="예: 70">
+    </div>
+
+    <div class="input-group">
+      <label>환자 상태</label>
+      <div class="radio-group">
+        <div class="radio-option">
+          <input type="radio" name="admit" value="stay" id="stay" checked>
+          <label for="stay" class="radio-label">
+            <span class="radio-icon">🏥</span>
+            재원
+          </label>
+        </div>
+        <div class="radio-option">
+          <input type="radio" name="admit" value="new" id="new">
+          <label for="new" class="radio-label">
+            <span class="radio-icon">➕</span>
+            입원
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>입원 시각</label>
+      <div class="time-group">
+        <select id="admissionHour" disabled>
+          <option value="">시</option>
+          <script>
+            for (let i = 0; i < 24; i++) {
+              document.write(`<option value="${i}">${i}시</option>`);
+            }
+          </script>
+        </select>
+
+        <select id="admissionMinute" disabled>
+          <option value="">분</option>
+          <script>
+            for (let i = 0; i < 60; i += 5) {
+              document.write(`<option value="${i}">${String(i).padStart(2, '0')}</option>`);
+            }
+          </script>
+        </select>
+      </div>
+    </div>
+
+    <button onclick="calculate()">💫 계산하기</button>
+  </div>
+
+  <div id="result" class="result" style="display:none;"></div>
+
+  <footer>
+    <a href="https://forms.gle/your-form-id" target="_blank">💡 개선사항 제안하기</a>
+  </footer>
+</div>
+
+<script>
+const FEED_TIMES = [
+  { label: "07:00", min: 420, icon: "🍼" },
+  { label: "10:00", min: 600, icon: "🍼" },
+  { label: "13:00", min: 780, icon: "🍼" },
+  { label: "16:00", min: 960, icon: "🍼" },
+  { label: "19:00", min: 1140, icon: "🍼" },
+  { label: "23:00", min: 1380, icon: "🍼" },
+  { label: "02:00", min: 1560, icon: "🍼" },
+  { label: "05:00", min: 1740, icon: "🍼" }
+];
+
+const roundUp5 = v => Math.ceil(v / 5) * 5;
+const floor5 = v => Math.floor(v / 5) * 5;
+
+document.querySelectorAll('input[name="admit"]').forEach(r => {
+  r.addEventListener('change', () => {
+    const on = document.querySelector('input[name="admit"]:checked').value === 'new';
+    admissionHour.disabled = !on;
+    admissionMinute.disabled = !on;
+  });
+});
+
+function calculate() {
+  const w = parseFloat(weight.value);
+  const m = parseFloat(mlPerKg.value);
+  const status = document.querySelector('input[name="admit"]:checked').value;
+
+  if (!w || !m) {
+    alert("체중과 체중당 수유량을 입력하세요.");
+    return;
+  }
+
+  const daily = roundUp5(w * m);
+  let effective = daily;
+  let feeds = [];
+
+  if (status === "stay") {
+    feeds = FEED_TIMES.map(t => ({ time: t.label, volume: 0, icon: t.icon }));
+  } else {
+    const h = admissionHour.value;
+    const min = admissionMinute.value;
+    if (h === "" || min === "") {
+      alert("입원 시각을 입력하세요.");
+      return;
+    }
+
+    let admitMin = Number(h) * 60 + Number(min);
+    if (admitMin < 360) admitMin += 1440;
+
+    const remainHr = 24 - ((admitMin - 360) / 60);
+    effective = roundUp5(daily / 24 * remainHr);
+
+    feeds.push({ 
+      time: `${String(h).padStart(2,"0")}:${String(min).padStart(2,"0")}`, 
+      volume: 0,
+      icon: "🏥"
+    });
+
+    let future = FEED_TIMES.filter(t => t.min >= admitMin);
+    if (future.length && future[0].min - admitMin < 60) future.shift();
+    future.forEach(t => feeds.push({ time: t.label, volume: 0, icon: t.icon }));
+  }
+
+  const base = floor5(effective / feeds.length);
+  let rest = effective - base * feeds.length;
+
+  feeds.forEach(f => f.volume = base);
+  for (let i = feeds.length - 1; i >= 0 && rest > 0; i--, rest -= 5) {
+    feeds[i].volume += 5;
+  }
+
+  result.innerHTML = `
+    <div class="result-header">
+      <div class="result-title">일일 총 수유량</div>
+      <div class="result-value">${daily} mL</div>
+      <div class="result-subvalue">적용량: ${effective} mL</div>
+    </div>
+    <div class="feed-list">
+      ${feeds.map(f => `
+        <div class="feed-row ${["02:00","05:00"].includes(f.time) ? "night" : ""}">
+          <div class="feed-time">
+            <span class="feed-icon">${f.icon}</span>
+            ${f.time}
+          </div>
+          <div class="feed-volume">${f.volume} mL</div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+  result.style.display = "block";
+  result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+</script>
+
+</body>
+</html>
